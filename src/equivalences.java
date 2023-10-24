@@ -3,30 +3,11 @@ import java.util.regex.Pattern;
 
 public class equivalences {
 	
-	public String matches(String input) {
-		String id = identity(input);
-		if(!id.equals("No match")) {
-			return id;
+	public String matches(String input, String law) {
+		if(law.contains("distributive")) {
+			return distributive(input);
 		}
-		String dom = domination(input);
-		if(!dom.equals("No match")) {
-			return dom;
-		}
-		String idem = idempotent(input);
-		if(!idem.equals("No match")) {
-			return idem;
-		}
-		String double_neg = double_negation(input);
-		if(!double_neg.equals("No match")) {
-			return double_neg;
-		}
-		String neg = negation(input);
-		if(!neg.equals("No match")) {
-			return neg;
-		}
-		else {
-			return "No match";
-		}
+		return "No match";
 	}
 	
 	public String identity(String input) {
@@ -88,7 +69,7 @@ public class equivalences {
 	}
 	
 	public String double_negation(String input) {
-		String regex = "~(~[a-z])";
+		String regex = "~[(]~[a-z][)]";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(input);
 		
@@ -111,6 +92,120 @@ public class equivalences {
 		}
 		else if(matcher2.find()) {
 			return "T";
+		}
+		return "No match";
+	}
+	
+	public String commutative(String input) {
+		String or_regex = "[a-z] or [a-z]";
+		String and_regex = "[a-z] and [a-z]";
+		Pattern pattern1 = Pattern.compile(or_regex);
+		Pattern pattern2 = Pattern.compile(and_regex);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if(matcher1.find()) {
+			return String.valueOf(matcher1.group(0).charAt(5)) + " or " 
+				   + String.valueOf(matcher1.group(0).charAt(0));
+		}
+		else if(matcher2.find()) {
+			return String.valueOf(matcher2.group(0).charAt(6)) + " and " 
+				   + String.valueOf(matcher2.group(0).charAt(0));
+		}
+		return "No match";
+	}
+	
+	public String associative(String input) {
+		String or_regex = "[(][a-z] or [a-z][)] or [a-z]";
+		String or_regex1 = "[a-z] or [(][a-z] or [a-z][)]";
+		String and_regex = "[(][a-z] and [a-z][)] and [a-z]";
+		String and_regex1 = "[a-z] and [(][a-z] and [a-z][)]";
+		Pattern pattern1 = Pattern.compile(or_regex);
+		Pattern pattern2 = Pattern.compile(or_regex1);
+		Pattern pattern3 = Pattern.compile(and_regex);
+		Pattern pattern4 = Pattern.compile(and_regex1);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		Matcher matcher3 = pattern3.matcher(input);
+		Matcher matcher4 = pattern4.matcher(input);
+		
+		if(matcher1.find()) {
+			return String.valueOf(matcher1.group(0).charAt(1)) + " or (" 
+				   + String.valueOf(matcher1.group(0).charAt(6)) + " or "
+				   + String.valueOf(matcher1.group(0).charAt(12)) + ")";
+		}
+		else if(matcher2.find()) {
+			return "(" + String.valueOf(matcher2.group(0).charAt(1)) + " or " 
+					   + String.valueOf(matcher2.group(0).charAt(6)) + ") or "
+					   + String.valueOf(matcher2.group(0).charAt(12));
+		}
+		else if(matcher3.find()) {
+			System.out.println("Matcher 3 find");
+			return String.valueOf(matcher3.group(0).charAt(1)) + " and (" 
+					   + String.valueOf(matcher3.group(0).charAt(7)) + " and "
+					   + String.valueOf(matcher3.group(0).charAt(14)) + ")";
+		}
+		else if(matcher4.find()) {
+			return "(" + String.valueOf(matcher4.group(0).charAt(1)) + " and " 
+					   + String.valueOf(matcher4.group(0).charAt(7)) + ") and "
+					   + String.valueOf(matcher4.group(0).charAt(14));
+		}
+		return "No match";
+	}
+	
+	/*
+	 * Change 
+	 */
+	public String distributive(String input) {
+		String or_regex1 = "[a-z] or [(][a-z] and [a-z][)]";
+		String or_regex2 = "[(][a-z] or [a-z][)] and [(][a-z] or [a-z][)]";
+		String and_regex1 = "[a-z] and [(][a-z] or [a-z][)]";
+		String and_regex2 = "[(][a-z] and [a-z][)] or [(][a-z] and [a-z][)]";
+		Pattern pattern1 = Pattern.compile(or_regex1);
+		Pattern pattern2 = Pattern.compile(or_regex2);
+		Pattern pattern3 = Pattern.compile(and_regex1);
+		Pattern pattern4 = Pattern.compile(and_regex2);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		Matcher matcher3 = pattern3.matcher(input);
+		Matcher matcher4 = pattern4.matcher(input);
+		
+		if(matcher1.find()) {
+			return "(" + String.valueOf(matcher1.group(0).charAt(0)) + " or " + 
+		           String.valueOf(matcher1.group(0).charAt(6)) + ") and (" + 
+				   String.valueOf(matcher1.group(0).charAt(0)) + " or " + 
+		           String.valueOf(matcher1.group(0).charAt(12)) + ")";
+		}
+		else if(matcher2.find()) {
+			return String.valueOf(matcher1.group(0).charAt(0)) + " or (" + 
+			           String.valueOf(matcher1.group(0).charAt(6)) + " and " + 
+			           String.valueOf(matcher1.group(0).charAt(12)) + ")";
+		}
+		else if(matcher3.find()) {
+			return "(" + String.valueOf(matcher1.group(0).charAt(0)) + " and " + 
+			           String.valueOf(matcher1.group(0).charAt(6)) + ") or (" + 
+					   String.valueOf(matcher1.group(0).charAt(0)) + " and " + 
+			           String.valueOf(matcher1.group(0).charAt(12)) + ")";
+		}
+		else if(matcher4.find()) {
+			return String.valueOf(matcher1.group(0).charAt(0)) + " and (" + 
+			           String.valueOf(matcher1.group(0).charAt(6)) + " or " + 
+			           String.valueOf(matcher1.group(0).charAt(12)) + ")";
+		}
+		return "No match";
+	}
+	
+	public String absorption(String input) {
+		String first = String.valueOf(input.charAt(0));
+		String and_regex = first + " and (" + first + " or [a-z][)]";
+		String or_regex = first + " or (" + first + " and [a-z][)]";
+		Pattern pattern1 = Pattern.compile(and_regex);
+		Pattern pattern2 = Pattern.compile(or_regex);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if(matcher1.find() || matcher2.find()) {
+			return first;
 		}
 		return "No match";
 	}
