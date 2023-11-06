@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 public class UI {
 	
+	/*
 	private int addition(int a, int b) {
 		return a + b;
 	}
@@ -19,7 +20,7 @@ public class UI {
 		int result = (int) map.get(operation).invoke(new UI(), a, b);
 		System.out.println(result);
 	}
-	
+	*/
 	private static int callFunction(String law, Stack<String> curStack, Stack<String> undoStack, int step) {
 		if (law.equals("undo")) {
 			if (curStack.size() == 1) {
@@ -50,10 +51,17 @@ public class UI {
 		Stack<String> undoStack = new Stack<>();
 		
 		HashMap<String, Method> functions = new HashMap<>();
-		functions.put("add", UI.class.getDeclaredMethod("addition", int.class, int.class));
-		functions.put("sub", UI.class.getDeclaredMethod("subtraction", int.class, int.class));
+		functions.put("iden", equivalences.class.getDeclaredMethod("identity", String.class));
+		functions.put("dom", equivalences.class.getDeclaredMethod("domination", String.class));
+		functions.put("idem", equivalences.class.getDeclaredMethod("idempotent", String.class));
+		functions.put("dneg", equivalences.class.getDeclaredMethod("double_negation", String.class));
+		functions.put("neg", equivalences.class.getDeclaredMethod("negation", String.class));
+		functions.put("comm", equivalences.class.getDeclaredMethod("commutative", String.class));
+		functions.put("assoc", equivalences.class.getDeclaredMethod("associative", String.class));
+		functions.put("dist", equivalences.class.getDeclaredMethod("distributive", String.class));
+		functions.put("absorp", equivalences.class.getDeclaredMethod("absorption", String.class));
 		
-		testReflection(functions, "add", 5, 4);
+		//testReflection(functions, "add", 5, 4);
 		System.out.println("Enter the starting expression: ");
 		String starting = kb.next();
 		proofStack.push(starting);
