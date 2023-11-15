@@ -7,21 +7,7 @@ import java.util.HashMap;
 
 public class UI {
 	
-	/*
-	private int addition(int a, int b) {
-		return a + b;
-	}
-	
-	private int subtraction(int a, int b) {
-		return a - b;
-	}
-	
-	private static void testReflection(HashMap<String, Method> map, String operation, int a, int b) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		int result = (int) map.get(operation).invoke(new UI(), a, b);
-		System.out.println(result);
-	}
-	*/
-	private static int callFunction(String law, Stack<String> curStack, Stack<String> undoStack, int step) {
+	private static int callFunction(String law, HashMap<String, Method> methods, Stack<String> curStack, Stack<String> undoStack, int step) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		if (law.equals("undo")) {
 			if (curStack.size() == 1) {
 				System.out.println("Already at beginning of proof.");
@@ -38,8 +24,14 @@ public class UI {
 		}
 		
 		else {
-			curStack.push(law);
-			step++;
+			String result = (String) methods.get(law).invoke(new equivalences(), curStack.peek());
+			if (result.equals("No match")) {
+				System.out.println("Law does not apply: " + law);
+			}
+			else {
+				curStack.push(result);
+				step++;
+			}
 		}
 		return step;
 	}
@@ -61,21 +53,25 @@ public class UI {
 		functions.put("dist", equivalences.class.getDeclaredMethod("distributive", String.class));
 		functions.put("absorp", equivalences.class.getDeclaredMethod("absorption", String.class));
 		
-		//testReflection(functions, "add", 5, 4);
 		System.out.println("Enter the starting expression: ");
-		String starting = kb.next();
+		String starting = kb.nextLine();
 		proofStack.push(starting);
 		
 		System.out.println("Enter the ending expression: ");
-		String ending = kb.next();
+		String ending = kb.nextLine();
 		
 		System.out.println("\n---------- Beginning of Proof ----------");
 		int i = 1;
 		
 		while (!proofStack.peek().equals(ending)) {
 			System.out.println(i + ". " + proofStack.peek());
-			String law = kb.next();
-			i = callFunction(law, proofStack, undoStack, i);
+			String law = kb.nextLine();
+			if (functions.containsKey(law)) {
+				i = callFunction(law, functions, proofStack, undoStack, i);
+			}
+			else {
+				System.out.println("No such law: " + law);
+			}
 			
 		}
 		System.out.println(i + ". " + proofStack.peek());
