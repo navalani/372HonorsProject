@@ -7,7 +7,7 @@ import java.util.HashMap;
 
 public class UI {
 	
-	private static int callFunction(String law, HashMap<String, Method> methods, Stack<String> curStack, Stack<String> undoStack, int step) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+	private static int callFunction(String law, HashMap<String, Method> methods, Stack<String> curStack, Stack<String> undoStack, Stack<String> usedLaws, Stack<String> undoLaws, int step) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		// Check if the "law" entered was the instruction "redo"
 		if (law.equals("undo")) {
 			// Cannot undo if we are at the start of the proof
@@ -17,6 +17,7 @@ public class UI {
 			else {
 				// Pop the top of the stack and add it to the undo stack if the user wants to use it again
 				undoStack.push(curStack.pop());
+				undoLaws.push(usedLaws.pop());
 				step--;
 			}
 		}
@@ -24,6 +25,7 @@ public class UI {
 		// Add the top of the undo stack to the current stack, which redos the user's previous input
 		else if (law.equals("redo")) {
 			curStack.push(undoStack.pop());
+			usedLaws.push(undoLaws.pop());
 			step++;
 		}
 		
@@ -38,6 +40,7 @@ public class UI {
 			// Otherwise put onto the stack what the result of calling the method is
 			else {
 				curStack.push(result);
+				usedLaws.push(law);
 				step++;
 			}
 		}
@@ -49,6 +52,8 @@ public class UI {
 		Scanner kb = new Scanner(System.in);
 		Stack<String> proofStack = new Stack<>();
 		Stack<String> undoStack = new Stack<>();
+		Stack<String> usedLaws = new Stack<>();
+		Stack<String> undoLaws = new Stack<>();
 		
 		// Add the function shorthand and its associated method to a hashmap
 		HashMap<String, Method> functions = new HashMap<>();
@@ -70,6 +75,22 @@ public class UI {
 		System.out.println("Enter the ending expression: ");
 		String ending = kb.nextLine();
 		
+		// Print out the shorthands for the equivalence laws for reference by the user
+		System.out.println("\nEquivalences Shorthand:\n");
+		for (int i = 0; i < functions.size(); i+=2) {
+			String equi1 = (String)(functions.keySet().toArray()[i]);
+			String st1 = equi1 + " - " + functions.get(equi1).getName();
+
+			if (i + 1 <= functions.size() - 1) {
+				String equi2 = (String)(functions.keySet().toArray()[i + 1]);
+				String st2 = equi2 + " - " + functions.get(equi2).getName();
+				System.out.printf("%-30.30s  %-30.30s%n", st1, st2);
+			}
+			else {
+				System.out.printf("%-30.30s%n", st1);
+			}
+		}
+		
 		// Start the proof
 		System.out.println("\n---------- Beginning of Proof ----------");
 		int i = 1;
@@ -82,7 +103,7 @@ public class UI {
 			String law = kb.nextLine();
 			// Make sure the law entered exists in the hashmap
 			if (functions.containsKey(law)) {
-				i = callFunction(law, functions, proofStack, undoStack, i);
+				i = callFunction(law, functions, proofStack, undoStack, usedLaws, undoLaws, i);
 			}
 			else {
 				System.out.println("No such law: " + law);
@@ -92,6 +113,10 @@ public class UI {
 		// Print out the ending expression
 		System.out.println(i + ". " + proofStack.peek());
 		System.out.println("------------- End of Proof -------------");
+		System.out.println("Laws used:");
+		for (int j = 0; j < usedLaws.size(); j++) {
+			System.out.println(functions.get(usedLaws.toArray()[j]).getName());
+		}
 		kb.close();
 	}
 
