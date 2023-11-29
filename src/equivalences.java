@@ -3,12 +3,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class equivalences {
-	
-	public String expr_regex = "[(]?(\\s*)[A-Z|a-z|T|F](\\s*)(and|or)?(\\s*)[A-Z|a-z|T|F]?(\\s*)[)]?";
-	
+
+	public String expr_regex = "\\(+\\s*.*\\s*\\)+";
+
 	public String matches(String input, String law) {
-		if(law.contains("identity")) {
+		if (law.contains("identity")) {
 			return identity(input);
+		}
+		if (law.contains("domination")) {
+			return domination(input);
+		}
+		if (law.contains("idempotent")) {
+			return idempotent(input);
 		}
 		if(law.contains("conditional")) {
 			return conditional(input);
@@ -16,327 +22,421 @@ public class equivalences {
 		if(law.contains("double")) {
 			return double_negation(input);
 		}
-		if(law.contains("DM1")) {
+		if(law.contains("negation")) {
+			return negation(input);
+		}
+		if(law.contains("negate")) {
+			return negate(input);
+		}
+		if(law.contains("DMor")) {
 			return DMor(input);
 		}
-		if(law.contains("DM2")) {
+		if(law.contains("DMand")) {
 			return DMand(input);
 		}
 		if(law.contains("commutative")) {
 			return commutative(input);
 		}
-		if(law.contains("expression")) {
-			return expression(input);
+		if(law.contains("distributive")) {
+			return distributive(input);
 		}
 		return "No match";
-	}
-	
-	public String expression(String input) {
-		String regex = "[(]?(\\s*)[a-z|T|F](\\s*)(and|or)?(\\s*)[a-z|T|F]?(\\s*)[)]?";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(input);
-		if(matcher.matches()) {
-			return input;
-		}
-		return "Not an expression";
-	}
-	
-	// Tested
-	public String identity(String input) {
-		String[] inputArray = input.split("\\(|\\)");
-		String true_regex = "(\\s*)[(]?(" + expr_regex + ")*(\\s+)and(\\s+)T[)]?(\\s*)|(\\s*)[(]?T(\\s+)and(\\s+)(" + expr_regex + ")*(\\s*)";
-		String false_regex = "(\\s*)[(]?(" + expr_regex + ")*(\\s+)or(\\s+)F[)]?(\\s*)|(\\s*)[(]?F(\\s+)or(\\s+)(" + expr_regex + ")*(\\s*)";
-		Pattern pattern1 = Pattern.compile(true_regex);
-		Pattern pattern2 = Pattern.compile(false_regex);
-		Matcher matcher1 = pattern1.matcher(input);
-		Matcher matcher2 = pattern2.matcher(input);
-		
-//		String left = inputArray[0];
-//		String right = inputArray[2];
-//		if(inputArray[0].length() == 0) {
-//			left = inputArray[1];
-//			right = inputArray[2];
-//		}
-		if(matcher1.matches()) {
-			System.out.println("Matcher 1 matches");
-			String variable = matcher1.group(0);
-			return inputArray[1];
-		}
-		else if(matcher2.matches()) {
-			return "matcher2";
-		}
-		return "No match";
-	}
-	
-	//tested
-	public String domination(String input) {
-		String[] inputArray = input.split("\\s+|\\(|\\)");
-		String true_regex = "(\\s*)[a-z](\\s+)or(\\s+)T(\\s*)|(\\s*)T(\\s+)or(\\s+)[a-z](\\s*)";
-		String false_regex = "(\\s*)[a-z](\\s+)and(\\s+)F(\\s*)|(\\s*)F(\\s+)and(\\s+)[a-z](\\s*)";
-		Pattern pattern1 = Pattern.compile(true_regex);
-		Pattern pattern2 = Pattern.compile(false_regex);
-		Matcher matcher1 = pattern1.matcher(input);
-		Matcher matcher2 = pattern2.matcher(input);
-		String left = inputArray[0];
-		String right = inputArray[2];
-		if(inputArray[0].length() == 0) {
-			left = inputArray[1];
-			right = inputArray[3];
-		}
-		if(matcher1.find()) {
-			return "T";
-		}
-		else if(matcher2.find()) {
-			return "F";
-		}
-		return "No match";
-	}
-	
-	//tested
-	public String idempotent(String input) {
-		String[] inputArray = input.split("\\s+|\\(|\\)");
-		String and_regex = "(\\s*)[(]?[a-z][)]?(\\s+)and(\\s+)[(]?[a-z][)]?(\\s*)";
-		String or_regex = "(\\s*)[(]?[a-z][)]?(\\s+)or(\\s+)[(]?[a-z][)]?(\\s*)";
-		Pattern pattern1 = Pattern.compile(and_regex);
-		Pattern pattern2 = Pattern.compile(or_regex);
-		Matcher matcher1 = pattern1.matcher(input);
-		Matcher matcher2 = pattern2.matcher(input);
-		
-		// matcher1.group(0).charAt(0) => variable or T or F
-		// matcher1.group(0).charAt(5) => T or F or variable
-		if(matcher1.matches() || matcher2.matches()) {
-			return inputArray[1];
-		}	
-		return "No match";
-	}
-	
-	//tested
-	public String double_negation(String input) {
-		String[] inputArray = input.split("\\s+|\\(|\\)");
-		String regex = "(\\s*)~(\\s*)[(](\\s*)~(\\s*)[a-z](\\s*)[)](\\s*)";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(input);
-		
-		if(matcher.matches()) {
-			return String.valueOf(matcher.group(0).charAt(5));
-		}
-		return "~(p or ~q)";
 	}
 
-	//tested
-	public String negation(String input) {
-		String and_regex = "(\\s*)[(]?[a-z][)]?(\\s+)and(\\s+)[(]?~(\\s*)[a-z][)]?(\\s*)|(\\s*)[(]?~(\\s*)[a-z][)]?(\\s+)and(\\s+)[(]?[a-z][)]?(\\s*)";
-		String or_regex = "(\\s*)[(]?[a-z][)]?(\\s+)or(\\s+)[(]?~(\\s*)[a-z][)]?(\\s*)|(\\s*)[(]?~(\\s*)[a-z][)]?(\\s+)or(\\s+)[(]?[a-z][)]?(\\s*)";
-		Pattern pattern1 = Pattern.compile(and_regex);
-		Pattern pattern2 = Pattern.compile(or_regex);
+	private void print(String input) {
+		System.out.println(input);
+	}
+
+	public String negate(String input) {
+		String true_regex = "(~\\s*T)";
+		String false_regex = "(~\\s*F)";
+		Pattern pattern1 = Pattern.compile(true_regex);
+		Pattern pattern2 = Pattern.compile(false_regex);
 		Matcher matcher1 = pattern1.matcher(input);
 		Matcher matcher2 = pattern2.matcher(input);
 		
 		if(matcher1.find()) {
-			return "F";
+			return matcher1.replaceAll("F");
 		}
 		else if(matcher2.find()) {
-			return "T";
+			return matcher2.replaceAll("T");
 		}
 		return "No match";
 	}
-	
-	//Tested
-	public String commutative(String input) {
-		String[] inputArray = input.split("\\s+|\\(|\\)");
-		String expression = "";
-		//String or_regex = "(\\s*)[(]?[a-z][)]?(\\s+)or(\\s+)[(]?[a-z][)]?(\\s*)";
-		//String and_regex = "(\\s*)[(]?[a-z][)]?(\\s+)and(\\s+)[(]?[a-z][)]?(\\s*)";
-		String regex3 = "\\((\\s*)[a-z](\\s*)and(\\s*)[a-z](\\s*)\\)(\\s*)or(\\s*)\\((\\s*)[a-z](\\s*)and(\\s*)[a-z](\\s*)\\)";
-		//Pattern pattern1 = Pattern.compile(or_regex);
-		//Pattern pattern2 = Pattern.compile(and_regex);
-		Pattern pattern3 = Pattern.compile(regex3);
-		//Matcher matcher1 = pattern1.matcher(input);
-		//Matcher matcher2 = pattern2.matcher(input);
-		Matcher matcher3 = pattern3.matcher(input);
-		String left = inputArray[0];
-		String right = inputArray[2];
-		if(inputArray[0].length() == 0) {
-			left = inputArray[1];
-			right = inputArray[3];
-		}
-		//if(matcher1.find()) {
-			//return right + " or " 
-				//   + left;
-		//}
-		//if(matcher2.find()) {
-//			return right + " and " 
-//				   + left;
-//		}
-		if(matcher3.find()) {
-		System.out.println("Matcher 3 found");
-		}
-		return "No match";
-	}
-	
-	//Tested
-	public String associative(String input) {
-		String or_regex = "(\\s*)[(](\\s*)[a-z](\\s+)or(\\s+)[a-z](\\s+)[)](\\s+)or(\\s+)[a-z](\\s*)";
-		String or_regex1 = "(\\s*)[a-z](\\s+)or(\\s+)[(](\\s*)[a-z](\\s+)or(\\s+)[a-z](\\s*)[)](\\s*)";
-		String and_regex = "(\\s*)[(](\\s*)[a-z](\\s+)and(\\s+)[a-z](\\s*)[)](\\s+)and(\\s+)[a-z](\\s*)";
-		String and_regex1 = "(\\s*)[a-z](\\s+)and(\\s+)[(](\\s*)[a-z](\\s+)and(\\s+)[a-z](\\s*)[)](\\s*)";
-		Pattern pattern1 = Pattern.compile(or_regex);
-		Pattern pattern2 = Pattern.compile(or_regex1);
-		Pattern pattern3 = Pattern.compile(and_regex);
-		Pattern pattern4 = Pattern.compile(and_regex1);
+
+	// Tested
+	public String identity(String input) {
+		String true_regex = "\\s*(" + expr_regex + ")\\s+and\\s+(T)\\s*|\\s*(T)\\s+and\\s+(" + expr_regex
+				+ ")\\s*|\\s*([a-z]+|T|F)\\s+and\\s+(T)\\s*|\\s*(T)\\s+and\\s+([a-z]+|T|F)\\s*";
+		String false_regex = "\\s*(" + expr_regex + ")\\s+or\\s+(F)\\s*|\\s*(F)\\s+or\\s+(" + expr_regex
+				+ ")\\s*|\\s*([a-z]+|T|F)\\s+or\\s+(F)\\s*|\\s*(F)\\s+or\\s+([a-z]+|T|F)\\s*";
+		Pattern pattern1 = Pattern.compile(true_regex);
+		Pattern pattern2 = Pattern.compile(false_regex);
 		Matcher matcher1 = pattern1.matcher(input);
 		Matcher matcher2 = pattern2.matcher(input);
-		Matcher matcher3 = pattern3.matcher(input);
-		Matcher matcher4 = pattern4.matcher(input);
+		String left = "";
+		String right = "";
 		
-		if(matcher1.find()) {
-			return String.valueOf(matcher1.group(0).charAt(1)) + " or (" 
-				   + String.valueOf(matcher1.group(0).charAt(6)) + " or "
-				   + String.valueOf(matcher1.group(0).charAt(12)) + ")";
+		if (matcher1.find()) {
+			int groupCount = matcher1.groupCount();
+			for(int i = 1; i <= groupCount; i++) {
+				if(matcher1.group(i) != null) {
+					left = matcher1.group(i);
+					right = matcher1.group(i+1);
+					break;
+				}
+			}
+			String result = "";
+			if(left.equals("T")) {
+				result = matcher1.replaceAll(right);
+			}
+			else {
+				result = matcher1.replaceAll(left);
+			}
+			return result;
 		}
 		else if(matcher2.find()) {
-			return "(" + String.valueOf(matcher2.group(0).charAt(1)) + " or " 
-					   + String.valueOf(matcher2.group(0).charAt(6)) + ") or "
-					   + String.valueOf(matcher2.group(0).charAt(12));
-		}
-		else if(matcher3.find()) {
-			System.out.println("Matcher 3 find");
-			return String.valueOf(matcher3.group(0).charAt(1)) + " and (" 
-					   + String.valueOf(matcher3.group(0).charAt(7)) + " and "
-					   + String.valueOf(matcher3.group(0).charAt(14)) + ")";
-		}
-		else if(matcher4.find()) {
-			return "(" + String.valueOf(matcher4.group(0).charAt(1)) + " and " 
-					   + String.valueOf(matcher4.group(0).charAt(7)) + ") and "
-					   + String.valueOf(matcher4.group(0).charAt(14));
-		}
-		return "No match";
-	}
-	
-	//Tested
-	public String distributive(String input) {
-		String or_regex1 = "(\\s*)[a-z](\\s+)or(\\s+)[(](\\s*)[a-z](\\s+)and(\\s+)[a-z](\\s*)[)](\\s*)";
-		String or_regex2 = "(\\s*)[(](\\s*)[a-z](\\s+)or(\\s+)[a-z](\\s*)[)](\\s+)and(\\s+)[(](\\s*)[a-z](\\s+)or(\\s+)[a-z](\\s*)[)](\\s*)";
-		String and_regex1 = "(\\s*)[a-z](\\s+)and(\\s+)[(](\\s*)[a-z](\\s+)or(\\s+)[a-z](\\s*)[)](\\s*)";
-		String and_regex2 = "(\\s*)[(](\\s*)[a-z](\\s+)and(\\s+)[a-z](\\s*)[)](\\s+)or(\\s+)[(](\\s*)[a-z](\\s+)and(\\s+)[a-z](\\s*)[)](\\s*)";
-		Pattern pattern1 = Pattern.compile(or_regex1);
-		Pattern pattern2 = Pattern.compile(or_regex2);
-		Pattern pattern3 = Pattern.compile(and_regex1);
-		Pattern pattern4 = Pattern.compile(and_regex2);
-		Matcher matcher1 = pattern1.matcher(input);
-		Matcher matcher2 = pattern2.matcher(input);
-		Matcher matcher3 = pattern3.matcher(input);
-		Matcher matcher4 = pattern4.matcher(input);
-		
-		if(matcher1.find()) {
-			return "(" + String.valueOf(matcher1.group(0).charAt(0)) + " or " + 
-		           String.valueOf(matcher1.group(0).charAt(6)) + ") and (" + 
-				   String.valueOf(matcher1.group(0).charAt(0)) + " or " + 
-		           String.valueOf(matcher1.group(0).charAt(12)) + ")";
-		}
-		else if(matcher2.find()) {
-			System.out.println(matcher2.group(0));
-			return String.valueOf(matcher2.group(0).charAt(1)) + " or (" + 
-			           String.valueOf(matcher2.group(0).charAt(6)) + " and " + 
-			           String.valueOf(matcher2.group(0).charAt(14)) + ")";
-		}
-		else if(matcher3.find()) {
-			return "(" + String.valueOf(matcher3.group(0).charAt(0)) + " and " + 
-			           String.valueOf(matcher3.group(0).charAt(7)) + ") or (" + 
-					   String.valueOf(matcher3.group(0).charAt(0)) + " and " + 
-			           String.valueOf(matcher3.group(0).charAt(12)) + ")";
-		}
-		else if(matcher4.find()) {
-			return String.valueOf(matcher4.group(0).charAt(1)) + " and (" + 
-			           String.valueOf(matcher4.group(0).charAt(7)) + " or " + 
-			           String.valueOf(matcher4.group(0).charAt(14)) + ")";
-		}
-		return "No match";
-	}
-	
-	//Tested
-	public String absorption(String input) {
-		String first = String.valueOf(input.charAt(0));
-		String and_regex = "(\\s*)" + first + "(\\s+)and(\\s+)[(](\\s*)" + first + "(\\s+)or(\\s+)[a-z](\\s*)[)](\\s*)";
-		String or_regex = "(\\s*)" + first + "(\\s+)or(\\s+)[(](\\s*)" + first + "(\\s+)and(\\s+)[a-z](\\s*)[)](\\s*)";
-		Pattern pattern1 = Pattern.compile(and_regex);
-		Pattern pattern2 = Pattern.compile(or_regex);
-		Matcher matcher1 = pattern1.matcher(input);
-		Matcher matcher2 = pattern2.matcher(input);
-		
-		if(matcher1.find() || matcher2.find()) {
-			return first;
+			int groupCount = matcher2.groupCount();
+			for(int i = 1; i <= groupCount; i++) {
+				if(matcher2.group(i) != null) {
+					left = matcher2.group(i);
+					right = matcher2.group(i+1);
+					break;
+				}
+			}
+			String result = "";
+			if(left.equals("F")) {
+				result = matcher2.replaceAll(right);
+			}
+			else {
+				result = matcher2.replaceAll(left);
+			}
+			return result;
 		}
 		return "No match";
 	}
 	
 	// Tested
-	public String conditional(String input) {
-		String[] inputArray = input.split("\\s+");
-		String regex = "(\\s*)~?[a-z](\\s+)->(\\s+)~?[a-z](\\s*)";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(input);
-		String left = inputArray[0];
-		String right = inputArray[2];
-		if(left.length() > 1) {
-			left = "(" + left + ")";
+	public String domination(String input) {
+		String true_regex = "[(]?\\s*(" + expr_regex + ")\\s+or\\s+(T)\\s*[)]?|[(]?\\s*(T)\\s+or\\s+(" + expr_regex
+				+ ")\\s*[)]?|[(]?\\s*([a-zA-Z~]+|T|F)\\s+or\\s+(T)\\s*[)]?|[(]?\\s*(T)\\s+or\\s+([a-zA-Z~]+|T|F)\\s*[)]?";
+		String false_regex = "[(]?\\s*(" + expr_regex + ")\\s+and\\s+(F)\\s*[)]?|[(]?\\s*(F)\\s+and\\s+(" + expr_regex
+				+ ")\\s*[)]?|[(]?\\s*([a-z]+|T|F)\\s+and\\s+(F)\\s*[)]?|[(]?\\s*(F)\\s+and\\s+([a-z]+|T|F)\\s*[)]?";
+		Pattern pattern1 = Pattern.compile(true_regex);
+		Pattern pattern2 = Pattern.compile(false_regex);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if (matcher1.find()) {
+			String result = matcher1.replaceAll("T");
+			return result;
 		}
-//		if(right.length() > 1) {
-//			right = "(" + right + ")";
-//		}
-		if(matcher.find()){
-			return "~" + left + " or " + right;
+		else if(matcher2.find()) {
+			String result = matcher2.replaceAll("F");
+			return result;
+		}
+		return "No match";
+	}
+	
+	public String idempotent(String input) {
+		String and_regex = "\\(?\\s*([a-zA-Z~|T|F]+)\\s+and\\s+\\1\\s*\\)?"; 
+		String or_regex = "\\(?\\s*([a-zA-Z~|T|F]+)\\s+or\\s+\\1\\s*\\)?";
+		Pattern pattern1 = Pattern.compile(and_regex);
+		Pattern pattern2 = Pattern.compile(or_regex);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if (matcher1.find()) {
+			String val = matcher1.group(1);
+			String result = "";
+			result = matcher1.replaceAll(val);
+			return result;
+		}
+		else if(matcher2.find()) {
+			String val = matcher2.group(1);
+			String result = "";
+			result = matcher2.replaceAll(val);
+			return result;
+		}
+		return "No match";
+	}
+	
+	public String double_negation(String input) {
+		String str_regex = "\\~\\s*\\(\\s*\\~([a-z|T|F])\\)"; 
+		Pattern pattern1 = Pattern.compile(str_regex);
+		Matcher matcher1 = pattern1.matcher(input);
+		
+		if (matcher1.find()) {
+			String val = matcher1.group(1);
+			String result = "";
+			result = matcher1.replaceAll(val);
+			return result;
+		}
+		
+		return "No match";
+	}
+	
+	public String negation(String input) {
+		String or_regex = "([a-zA-Z~()|T|F]+)\\s+or\\s+~\\1|~([a-zA-Z()~|T|F]+)\\s+or\\s+\\1";
+		String and_regex = "([a-zA-Z~()|T|F]+)\\s+and\\s+~\\1|([a-zA-Z~()|T|F]+)\\s+and\\s+~\\1"; 
+		
+		Pattern pattern1 = Pattern.compile(or_regex);
+		Pattern pattern2 = Pattern.compile(and_regex);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if (matcher1.find()) {
+			String result = matcher1.replaceAll("T");
+			return result;
+		}
+		else if(matcher2.find()) {
+			String result = matcher2.replaceAll("F");
+			return result;
+		}
+		return "No match";
+	}
+	
+	public String commutative(String input) {
+		String or_regex = "([a-zA-Z|T|F])\\s+or\\s+([a-zA-Z|T|F])";
+		String and_regex = "([a-zA-Z|T|F])\\s+and\\s+([a-zA-Z|T|F])";
+		
+		Pattern pattern1 = Pattern.compile(or_regex);
+		Pattern pattern2 = Pattern.compile(and_regex);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if (matcher1.find()) {
+			String val = matcher1.group(2) + " or " + matcher1.group(1);
+			String result = matcher1.replaceAll(val);
+			return result;
+		}
+		else if(matcher2.find()) {
+			String val = matcher2.group(2) + " and " + matcher1.group(1);
+			String result = matcher2.replaceAll(val);
+			return result;
+		}
+		return "No match";
+	}
+	
+	public String associative(String input) {
+		String and_regex1 = "\\((\\s*[a-zA-Z|T|F])\\s+and\\s+(\\s*[a-zA-Z|T|F])\\s*\\)\\s+and\\s+([a-zA-Z|T|F])";
+		String and_regex2 = "([a-zA-Z|T|F])\\s+and\\s+\\(\\s*([a-zA-Z|T|F])\\s+and\\s+([a-zA-Z|T|F])\\s*\\)";
+		String or_regex1 = "\\(([a-zA-Z|T|F])\\s+or\\s+([a-zA-Z|T|F])\\)\\s+or\\s+([a-zA-Z|T|F])";
+		String or_regex2 = "([a-zA-Z|T|F])\\s+or\\s+\\(\\s*([a-zA-Z|T|F])\\s+or\\s+([a-zA-Z|T|F])\\s*\\)";
+		
+		Pattern pattern1 = Pattern.compile(and_regex1);
+		Pattern pattern2 = Pattern.compile(and_regex2);
+		Pattern pattern3 = Pattern.compile(or_regex1);
+		Pattern pattern4 = Pattern.compile(or_regex2);
+		
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		Matcher matcher3 = pattern3.matcher(input);
+		Matcher matcher4 = pattern4.matcher(input);
+		
+		if (matcher1.find()) {
+			String val1 = matcher1.group(1);
+			String val2 = matcher1.group(2);
+			String val3 = matcher1.group(3);
+			String val = val1 + " and (" + val2 + " and " + val3 + ")";
+			String result = matcher1.replaceAll(val);
+			return result;
+		}
+		else if(matcher2.find()) {
+			String val1 = matcher2.group(1);
+			String val2 = matcher2.group(2);
+			String val3 = matcher2.group(3);
+			String val = "( "+ val1 + " and " + val2 + ") and " + val3;
+			String result = matcher2.replaceAll(val);
+			return result;
+		}
+		else if(matcher3.find()) {
+			String val1 = matcher3.group(1);
+			String val2 = matcher3.group(2);
+			String val3 = matcher3.group(3);
+			String val = val1 + " or (" + val2 + " or " + val3 + ")";
+			String result = matcher3.replaceAll(val);
+			return result;
+		}
+		else if(matcher4.find()) {
+			String val1 = matcher4.group(1);
+			String val2 = matcher4.group(2);
+			String val3 = matcher4.group(3);
+			String val = "( "+ val1 + " or " + val2 + ") or " + val3;
+			String result = matcher4.replaceAll(val);
+			return result;
+		}
+		return "No match";
+	}
+	
+	public String distributive(String input) {
+		String and_regex1 = "([a-zA-Z|T|F])\\s+or\\s+\\(\\s*([a-zA-Z|T|F])\\s+and\\s+([a-zA-Z|T|F])\\s*\\)";
+		String and_regex2 = "\\(\\s*([a-zA-Z|T|F])\\s+or\\s+([a-zA-Z|T|F])\\s*\\)\\s+and\\s+\\(\\s*\\1\\s+or\\s+([a-zA-Z|T|F])\\s*\\)";
+		String or_regex1 = "([a-zA-Z|T|F])\\s+and\\s+\\(\\s*([a-zA-Z|T|F])\\s+or\\s+([a-zA-Z|T|F])\\s*\\)";
+		String or_regex2 = "\\(\\s*([a-zA-Z|T|F])\\s+and\\s+([a-zA-Z|T|F])\\s*\\)\\s+or\\s+\\(\\s*\\1\\s+and\\s+([a-zA-Z|T|F])\\s*\\)";
+		
+		Pattern pattern1 = Pattern.compile(and_regex1);
+		Pattern pattern2 = Pattern.compile(and_regex2);
+		Pattern pattern3 = Pattern.compile(or_regex1);
+		Pattern pattern4 = Pattern.compile(or_regex2);
+		
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		Matcher matcher3 = pattern3.matcher(input);
+		Matcher matcher4 = pattern4.matcher(input);
+		
+		if (matcher1.find()) {
+			String val1 = matcher1.group(1);
+			String val2 = matcher1.group(2);
+			String val3 = matcher1.group(3);
+			String val = "(" + val1 + " or " + val2 + ") and (" + val1 + " or " + val3 + ")";
+			String result = matcher1.replaceAll(val);
+			return result;
+		}
+		else if(matcher2.find()) {
+			String val1 = matcher2.group(1);
+			String val2 = matcher2.group(2);
+			String val3 = matcher2.group(3);
+			String val = val1 + " or (" + val2 + " and " + val3 + ")";
+			String result = matcher2.replaceAll(val);
+			return result;
+		}
+		else if(matcher3.find()) {
+			String val1 = matcher3.group(1);
+			String val2 = matcher3.group(2);
+			String val3 = matcher3.group(3);
+			String val = "(" + val1 + " and " + val2 + ") or (" + val1 + " and " + val3 + ")";
+			String result = matcher3.replaceAll(val);
+			return result;
+		}
+		else if(matcher4.find()) {
+			String val1 = matcher4.group(1);
+			String val2 = matcher4.group(2);
+			String val3 = matcher4.group(3);
+			String val = val1 + " and (" + val2 + " or " + val3 + ")";
+			String result = matcher4.replaceAll(val);
+			return result;
+		}
+		return "No match";
+	}
+	
+	public String absorption(String input) {
+		String and_regex = "([a-zA-Z|T|F])\\s+and\\s+\\(\\s*\\1\\s+or\\s+([a-zA-Z|T|F])\\s*\\)"; 
+		String or_regex = "([a-zA-Z|T|F])\\s+or\\s+\\(\\s*\\1\\s+and\\s+([a-zA-Z|T|F])\\s*\\)";
+		
+		Pattern pattern1 = Pattern.compile(and_regex);
+		Pattern pattern2 = Pattern.compile(or_regex);
+		
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if (matcher1.find() || matcher2.find()) {
+			return matcher1.replaceAll(matcher1.group(1).trim());
 		}
 		return "No match";
 	}
 	
 	public String DMor(String input){
-		String[] inputArray1 = input.split("\\s+|\\(|\\)|\\~");
-		String[] inputArray = new String[inputArray1.length];
-		int j = 0;
-		for(int i = 0; i < inputArray1.length; i++) {
-			if(inputArray1[i].length() != 0) {
-				inputArray[j] = inputArray1[i]; 
-				j++;
-			}
-		}
-		String regex1 = "(\\s*)~(\\s*)[(](\\s*)[a-z](\\s*)or(\\s*)[a-z](\\s*)[)](\\s*)";
-		String regex2 = "(\\s*)~(\\s*)[a-z](\\s*)and(\\s*)~(\\s*)[a-z](\\s*)";
+		String regex1 = "~\\s*\\(\\s*([a-zA-Z~()|T|F]+)\\s*or\\s*([a-zA-Z~()|T|F]+)\\s*\\)";
+		String regex2 = "~\\s*([a-zA-z~()|T|F]+)\\s*and\\s*~\\s*([a-zA-Z~()|T|F]+)\\s*";
 		Pattern pattern1 = Pattern.compile(regex1);
 		Pattern pattern2 = Pattern.compile(regex2);
 		Matcher matcher1 = pattern1.matcher(input);
 		Matcher matcher2 = pattern2.matcher(input);
 		if(matcher1.find()){
-			return "~" + inputArray[0] + " and ~" + inputArray[2];
+			String left = matcher1.group(1).trim();
+			String right = matcher1.group(2).trim();
+			String val = "";
+			if(matcher1.group(1).trim().charAt(0) == '~') {
+				left = "(" + matcher1.group(1) + ")";
+			}
+			if(matcher1.group(2).trim().charAt(0) == '~') {
+				right = "(" + matcher1.group(2) + ")";
+			}
+			val = "~" + left + " and ~" + right;
+			return matcher1.replaceAll(val);
 		}
 		else if(matcher2.find()){
-			return "~(" + inputArray[0] + " or " + inputArray[2] + ")";
+			String val = "";
+			String left = matcher2.group(1);
+			String right = matcher2.group(2);
+			if(matcher2.group(1).trim().charAt(0) == '~') {
+				left = "(" + matcher2.group(1) + ")";
+			}
+			if(matcher2.group(2).trim().charAt(0) == '~') {
+				right = "(" + matcher2.group(2) + ")";
+			}
+			val = "~(" + left + " or " + right + ")";
+			return matcher2.replaceAll(val);
 		} 
 		return "No match";
 	}
 	
 	public String DMand(String input){
-		String[] inputArray1 = input.split("\\s+|\\(|\\)|\\~");
-		String[] inputArray = new String[inputArray1.length];
-		int j = 0;
-		for(int i = 0; i < inputArray1.length; i++) {
-			if(inputArray1[i].length() != 0) {
-				inputArray[j] = inputArray1[i]; 
-				j++;
-			}
-		}
-		String regex1 = "(\\s*)~(\\s*)[(](\\s*)[a-z](\\s*)and(\\s*)[a-z](\\s*)[)](\\s*)";
-		String regex2 = "(\\s*)~(\\s*)[a-z](\\s*)or(\\s*)~(\\s*)[a-z](\\s*)";
+		String regex1 = "~\\s*\\(\\s*([a-zA-Z~|T|F]+)\\s*and\\s*([a-zA-Z~|T|F]+)\\s*)\\)";
+		String regex2 = "~\\s*([a-zA-z~|T|F]+)\\s*or\\s*~\\s*([a-zA-Z~|T|F]+)\\s*";
 		Pattern pattern1 = Pattern.compile(regex1);
 		Pattern pattern2 = Pattern.compile(regex2);
 		Matcher matcher1 = pattern1.matcher(input);
 		Matcher matcher2 = pattern2.matcher(input);
 		if(matcher1.find()){
-			return "~" + inputArray[0] + " or ~" + inputArray[2];
+			String val = "";
+			String left = matcher1.group(1);
+			String right = matcher1.group(2);
+			if(matcher1.group(1).trim().charAt(0) == '~') {
+				left = "(" + matcher1.group(1) + ")";
+			}
+			if(matcher1.group(2).trim().charAt(0) == '~') {
+				right = "(" + matcher1.group(2) + ")";
+			}
+			val = "~" + left + " or ~" + right;
+			return matcher1.replaceAll(val);
 		}
 		else if(matcher2.find()){
-			return "~(" + inputArray[0] + " and " + inputArray[2] + ")";
+			String val = "";
+			String left = matcher2.group(1);
+			String right = matcher2.group(2);
+			if(matcher2.group(1).trim().charAt(0) == '~') {
+				left = "(" + matcher2.group(1) + ")";
+			}
+			if(matcher2.group(2).trim().charAt(0) == '~') {
+				right = "(" + matcher2.group(2) + ")";
+			}
+			val = "~(" + left + " and " + right + ")";
+			return matcher2.replaceAll(val);
 		} 
+		return "No match";
+	}
+	
+
+	public String conditional(String input) {
+		String regex1 = "([a-zA-Z~|T|F]+)\\s+->\\s+([a-zA-Z~|T|F]+)";
+		String regex2 = "([a-zA-Z~|T|F]+)\\s+or\\s+([a-zA-Z~|T|F]+)";
+		Pattern pattern1 = Pattern.compile(regex1);
+		Pattern pattern2 = Pattern.compile(regex2);
+		Matcher matcher1 = pattern1.matcher(input);
+		Matcher matcher2 = pattern2.matcher(input);
+		
+		if(matcher1.find()){
+			String val = "";
+			String left = matcher1.group(1);
+			String right = matcher1.group(2);
+			if(matcher1.group(1).trim().charAt(0) == '~') {
+				left = "(" + matcher1.group(1) + ")";
+			}
+			val = "~" + left + " or " + right;
+			return matcher1.replaceAll(val);
+		}
+		else if(matcher2.find()){
+			String val = "";
+			String left = matcher2.group(1);
+			String right = matcher2.group(2);
+			if(matcher2.group(2).trim().charAt(0) == '~') {
+				right = "(" + matcher2.group(2) + ")";
+			}
+			val = "~(" + left + " -> " + right + ")";
+			return matcher2.replaceAll(val);
+		}
 		return "No match";
 	}
 }
