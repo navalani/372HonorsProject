@@ -6,47 +6,6 @@ public class equivalences {
 
 	public String expr_regex = "\\(+\\s*.*\\s*\\)+";
 
-	public String matches(String input, String law) {
-		if (law.contains("identity")) {
-			return identity(input);
-		}
-		if (law.contains("domination")) {
-			return domination(input);
-		}
-		if (law.contains("idempotent")) {
-			return idempotent(input);
-		}
-		if(law.contains("conditional")) {
-			return conditional(input);
-		}
-		if(law.contains("double")) {
-			return double_negation(input);
-		}
-		if(law.contains("negation")) {
-			return negation(input);
-		}
-		if(law.contains("negate")) {
-			return negate(input);
-		}
-		if(law.contains("DMor")) {
-			return DMor(input);
-		}
-		if(law.contains("DMand")) {
-			return DMand(input);
-		}
-		if(law.contains("commutative")) {
-			return commutative(input);
-		}
-		if(law.contains("distributive")) {
-			return distributive(input);
-		}
-		return "No match";
-	}
-
-	private void print(String input) {
-		System.out.println(input);
-	}
-
 	public String negate(String input) {
 		String true_regex = "(~\\s*T)";
 		String false_regex = "(~\\s*F)";
