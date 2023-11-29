@@ -66,6 +66,9 @@ public class UI {
 		functions.put("assoc", equivalences.class.getDeclaredMethod("associative", String.class));
 		functions.put("dist", equivalences.class.getDeclaredMethod("distributive", String.class));
 		functions.put("absorp", equivalences.class.getDeclaredMethod("absorption", String.class));
+		functions.put("cond", equivalences.class.getDeclaredMethod("conditional", String.class));
+		functions.put("DMor", equivalences.class.getDeclaredMethod("DMor", String.class));
+		functions.put("DMand", equivalences.class.getDeclaredMethod("DMand", String.class));
 		
 		// User enters the desired starting expression and ending expression
 		System.out.println("Enter the starting expression: ");
@@ -78,12 +81,40 @@ public class UI {
 		// Print out the shorthands for the equivalence laws for reference by the user
 		System.out.println("\nEquivalences Shorthand:\n");
 		for (int i = 0; i < functions.size(); i+=2) {
-			String equi1 = (String)(functions.keySet().toArray()[i]);
-			String st1 = equi1 + " - " + functions.get(equi1).getName();
+			String longhand1;
+			String equi1 = (String)(functions.keySet().toArray()[i]);	
+			
+			if (equi1.equals("DMor")) {
+				longhand1 = "DeMorgan's Law (Or)";
+			}
+			
+			else if (equi1.equals("DMand")) {
+				longhand1 = "DeMorgan's Law (And)";
+			}
+			
+			else {
+				longhand1 = functions.get(equi1).getName();
+			}
+			
+			String st1 = equi1 + " - " + longhand1;
 
 			if (i + 1 <= functions.size() - 1) {
+				String longhand2;
 				String equi2 = (String)(functions.keySet().toArray()[i + 1]);
-				String st2 = equi2 + " - " + functions.get(equi2).getName();
+				
+				if (equi2.equals("DMor")) {
+					longhand2 = "DeMorgan's Law (Or)";
+				}
+				
+				else if (equi2.equals("DMand")) {
+					longhand2 = "DeMorgan's Law (And)";
+				}
+				
+				else {
+					longhand2 = functions.get(equi2).getName();
+				}
+				
+				String st2 = equi2 + " - " + longhand2;
 				System.out.printf("%-30.30s  %-30.30s%n", st1, st2);
 			}
 			else {
