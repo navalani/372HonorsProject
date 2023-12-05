@@ -197,8 +197,8 @@ public class TestCases {
 		//test1Identity();
 		//System.out.println("---------- Test 2 ----------");
 		//test2Domination();
-		System.out.println("---------- Test 3 ----------");
-		test3Example1();
+		//System.out.println("---------- Test 3 ----------");
+		//test3Example1();
 		//System.out.println("---------- Test 4 ----------");
 		//test4();
 		//System.out.println("---------- Test 5 ----------");
