@@ -1,3 +1,13 @@
+/*
+ * Author: Josh Samadder
+ * 
+ * Purpose: Testcases for the program.
+ * 
+ * NOTE: Tests 4 and 5 do not work due to complications with the conditional law
+ * 
+ */
+
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.Stack;
 
