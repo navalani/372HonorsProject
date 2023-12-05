@@ -23,9 +23,14 @@ public class UI {
 		
 		// Add the top of the undo stack to the current stack, which redos the user's previous input
 		else if (law.equals("redo")) {
-			curStack.push(undoStack.pop());
-			usedLaws.push(undoLaws.pop());
-			step++;
+			if (undoStack.size() == 0) {
+				System.out.println("Cannot redo any further.");
+			}
+			else {
+				curStack.push(undoStack.pop());
+				usedLaws.push(undoLaws.pop());
+				step++;
+			}
 		}
 		
 		else {
