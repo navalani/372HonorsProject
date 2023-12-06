@@ -13,6 +13,12 @@ The backend of the project can translate a logical equivalence with the followin
 - Conditional law p -> q = ~p \/ q
 - Negate law  ~T = F and ~F = T
 
+The following operators are used:
+/\ (and)
+\/ (or)
+~  (not)
+-> (conditional)
+
 The program implementing this law on a logical equivalence can do the following:
 - Long parenthesized operands
 - Negated operands
@@ -27,3 +33,4 @@ Currently, the conditional law will produce
 But, ideally, you would want the user to choose between the 3 conditional occurrences in the statement.
 Not just the conditional law, this applies to all the laws in the project. 
 - Biconditionals and Xor operators aren't covered.
+- Order of operations needs to be enforced
