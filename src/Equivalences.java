@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class equivalences {
+public class Equivalences {
 
 	// Regex for an expression that can be used as an operand
 	public String expr_regex = "\\(+\\s*.*\\s*\\)+";
