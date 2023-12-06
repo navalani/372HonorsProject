@@ -1,0 +1,29 @@
+The backend of the project can translate a logical equivalence with the following laws:
+- Identity law
+- Domination law
+- Idempotent law
+- Double Negation law
+- Negation law
+- Commutative law
+- Associative law
+- Distributive law
+- Absorption law
+- De Morgan's Law with or operator  ~(p \/ q) = ~p /\ ~q
+- De Morgan's Law with and operator ~(p /\ q) = ~p \/ ~q
+- Conditional law p -> q = ~p \/ q
+- Negate law  ~T = F and ~F = T
+
+The program implementing this law on a logical equivalence can do the following:
+- Long parenthesized operands
+- Negated operands
+- Apply the law to every occurrence of the law in the logical equivalence
+
+Issues to work on:
+- The law shouldn't be applied to every occurrence of the law. Instead, give the user the number of occurrences of the law and let the user choose where the law should be applied.
+For example,
+~(p -> q) -> ~(r -> q \/ p)
+Currently, the conditional law will produce
+~(~p or q) -> ~(~p or q \/ p)
+But, ideally, you would want the user to choose between the 3 conditional occurrences in the statement.
+Not just the conditional law, this applies to all the laws in the project. 
+- Biconditionals and Xor operators aren't covered.
