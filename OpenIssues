@@ -16,7 +16,7 @@ The backend of the project can translate a logical equivalence with the followin
 The program implementing this law on a logical equivalence can do the following:
 - Long parenthesized operands
 - Negated operands
-- Apply the law to every occurrence of the law in the logical equivalence
+- Apply the law to every occurrence of the law in the logical equivalence. In particular, the replaceAll() method in equivalences.java is responsible for this.
 
 Issues to work on:
 - The law shouldn't be applied to every occurrence of the law. Instead, give the user the number of occurrences of the law and let the user choose where the law should be applied.
