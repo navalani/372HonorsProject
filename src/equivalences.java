@@ -1,11 +1,21 @@
+/*
+* Name: Nick Avalani
+* File: equivalences.java
+* Description: This file describes the backend of the project and uses regex
+* to match an equivalence with a law and apply that law to the equivalence by
+* translate it to a new logical equivalence
+*/
+
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class equivalences {
 
+	// Regex for an expression that can be used as an operand
 	public String expr_regex = "\\(+\\s*.*\\s*\\)+";
 
+	// Negate law:  ~T = F and ~F = T
 	public String negate(String input) {
 		String true_regex = "(~\\s*T)";
 		String false_regex = "(~\\s*F)";
@@ -23,7 +33,10 @@ public class equivalences {
 		return "No match";
 	}
 
-	// Tested
+	/* 
+ 	 * Identity law: p /\ T = p 
+	 *               p \/ F = p 
+	 */
 	public String identity(String input) {
 		String true_regex = "\\s*(" + expr_regex + ")\\s+and\\s+(T)\\s*|\\s*(T)\\s+and\\s+(" + expr_regex
 				+ ")\\s*|\\s*([a-z]+|T|F)\\s+and\\s+(T)\\s*|\\s*(T)\\s+and\\s+([a-z]+|T|F)\\s*";
@@ -75,7 +88,10 @@ public class equivalences {
 		return "No match";
 	}
 	
-	// Tested
+	/*
+	 * Domination law: p /\ F = F
+	 *                 p \/ T = T
+	 */
 	public String domination(String input) {
 		String true_regex = "[(]?\\s*(" + expr_regex + ")\\s+or\\s+(T)\\s*[)]?|[(]?\\s*(T)\\s+or\\s+(" + expr_regex
 				+ ")\\s*[)]?|[(]?\\s*([a-zA-Z~]+|T|F)\\s+or\\s+(T)\\s*[)]?|[(]?\\s*(T)\\s+or\\s+([a-zA-Z~]+|T|F)\\s*[)]?";
@@ -96,7 +112,11 @@ public class equivalences {
 		}
 		return "No match";
 	}
-	
+
+	/*
+	 * Idempotent law: p /\ p = p
+	 *                 p \/ p = p
+	 */
 	public String idempotent(String input) {
 		String and_regex = "\\(?\\s*([a-zA-Z~|T|F]+)\\s+and\\s+\\1\\s*\\)?"; 
 		String or_regex = "\\(?\\s*([a-zA-Z~|T|F]+)\\s+or\\s+\\1\\s*\\)?";
@@ -119,7 +139,10 @@ public class equivalences {
 		}
 		return "No match";
 	}
-	
+
+	/*
+	 * Double negation law: ~(~p) = p
+	 */
 	public String double_negation(String input) {
 		String str_regex = "\\~\\s*\\(\\s*\\~([a-z|T|F])\\)"; 
 		Pattern pattern1 = Pattern.compile(str_regex);
@@ -134,7 +157,11 @@ public class equivalences {
 		
 		return "No match";
 	}
-	
+
+	/*
+	* Negation law: p \/ ~p = T
+        *               p /\ ~p = F
+	*/
 	public String negation(String input) {
 		String or_regex = "([a-zA-Z~()|T|F]+)\\s+or\\s+~\\1|~([a-zA-Z()~|T|F]+)\\s+or\\s+\\1";
 		String and_regex = "([a-zA-Z~()|T|F]+)\\s+and\\s+~\\1|([a-zA-Z~()|T|F]+)\\s+and\\s+~\\1"; 
@@ -154,7 +181,11 @@ public class equivalences {
 		}
 		return "No match";
 	}
-	
+
+	/*
+	 * Commutative law: p /\ q = q /\ p
+	 *                  p \/ q = q \/ p
+	 */
 	public String commutative(String input) {
 		String or_regex = "([a-zA-Z|T|F])\\s+or\\s+([a-zA-Z|T|F])";
 		String and_regex = "([a-zA-Z|T|F])\\s+and\\s+([a-zA-Z|T|F])";
@@ -176,7 +207,11 @@ public class equivalences {
 		}
 		return "No match";
 	}
-	
+
+	/*
+	 * Associative law: (p /\ q) /\ r = p /\ (q /\ r)
+	 *                  (p \/ q) \/ r = p \/ (q \/ r)
+	 */
 	public String associative(String input) {
 		String and_regex1 = "\\((\\s*[a-zA-Z|T|F])\\s+and\\s+(\\s*[a-zA-Z|T|F])\\s*\\)\\s+and\\s+([a-zA-Z|T|F])";
 		String and_regex2 = "([a-zA-Z|T|F])\\s+and\\s+\\(\\s*([a-zA-Z|T|F])\\s+and\\s+([a-zA-Z|T|F])\\s*\\)";
@@ -227,7 +262,11 @@ public class equivalences {
 		}
 		return "No match";
 	}
-	
+
+	/*
+	 * Distributive law: p \/ (q /\ r) = (p \/ q) /\ (p \/ r)
+	 *                  (p \/ q) \/ r = p \/ (q \/ r)
+	 */
 	public String distributive(String input) {
 		String and_regex1 = "([a-zA-Z|T|F])\\s+or\\s+\\(\\s*([a-zA-Z|T|F])\\s+and\\s+([a-zA-Z|T|F])\\s*\\)";
 		String and_regex2 = "\\(\\s*([a-zA-Z|T|F])\\s+or\\s+([a-zA-Z|T|F])\\s*\\)\\s+and\\s+\\(\\s*\\1\\s+or\\s+([a-zA-Z|T|F])\\s*\\)";
@@ -279,6 +318,10 @@ public class equivalences {
 		return "No match";
 	}
 	
+	/*
+	 * Absorption law: p \/ (p /\ q) = p
+	 *                 p /\ (p \/ q) = p
+	 */
 	public String absorption(String input) {
 		String and_regex = "([a-zA-Z|T|F])\\s+and\\s+\\(\\s*\\1\\s+or\\s+([a-zA-Z|T|F])\\s*\\)"; 
 		String or_regex = "([a-zA-Z|T|F])\\s+or\\s+\\(\\s*\\1\\s+and\\s+([a-zA-Z|T|F])\\s*\\)";
@@ -294,7 +337,10 @@ public class equivalences {
 		}
 		return "No match";
 	}
-	
+
+	/*
+	 * De Morgan's or law: ~(p \/ q) = ~p /\ ~q
+	 */
 	public String DMor(String input){
 		String regex1 = "~\\s*\\(\\s*([a-zA-Z~()|T|F]+)\\s*or\\s*([a-zA-Z~()|T|F]+)\\s*\\)";
 		String regex2 = "~\\s*([a-zA-z~()|T|F]+)\\s*and\\s*~\\s*([a-zA-Z~()|T|F]+)\\s*";
@@ -330,7 +376,10 @@ public class equivalences {
 		} 
 		return "No match";
 	}
-	
+
+	/*
+	 * De Morgan's and law: ~(p /\ q) = ~p \/ ~q
+	 */
 	public String DMand(String input){
 		String regex1 = "~\\s*\\(\\s*([a-zA-Z~|T|F]+)\\s*and\\s*([a-zA-Z~|T|F]+)\\s*)\\)";
 		String regex2 = "~\\s*([a-zA-z~|T|F]+)\\s*or\\s*~\\s*([a-zA-Z~|T|F]+)\\s*";
@@ -367,7 +416,9 @@ public class equivalences {
 		return "No match";
 	}
 	
-
+	/*
+	 * Conditional law: p -> q = ~p \/ q
+	 */
 	public String conditional(String input) {
 		String regex1 = "([a-zA-Z~|T|F]+)\\s+->\\s+([a-zA-Z~|T|F]+)";
 		String regex2 = "([a-zA-Z~|T|F]+)\\s+or\\s+([a-zA-Z~|T|F]+)";
